@@ -1,6 +1,11 @@
-FROM eclipse-temurin:21.0.9_10-jdk
-WORKDIR /demo
-COPY target/*.jar /demo/petclinic.jar
+FROM maven AS build
+WORKDIR /app
+COPY pom.xml /app
+COPY src /app/src
+RUN mvn package -DskipTests
+
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /spring
+COPY --from=build /app/target/*.jar app.jar
+CMD ["java", "-jar", "app.jar"]
 EXPOSE 8080
-ENTRYPOINT ["java","-jar"]
-CMD ["petclinic.jar"]
